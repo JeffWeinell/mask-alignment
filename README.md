@@ -17,10 +17,12 @@ Output:
 - bedtools (tested using version 2.29.2)
 - R v4+
 - R packages `dplyr`, `stringr`, `Biostrings`, and `GenomicRanges`
+- [settings.config](https://github.com/JeffWeinell/mask-alignment/blob/main/settings.config) download and edit to specify settings for `mask-alignment.sh`
+- R script [mask-alignment.R](https://github.com/JeffWeinell/mask-alignment/blob/main/bin/mask-alignment.R) (download but don't edit)
 
 #### Usage
 
-The main bash script to run is `mask-alignment.sh`
+The main bash script to run is [mask-alignment.sh](https://github.com/JeffWeinell/mask-alignment/blob/main/bin/mask-alignment.sh)
 
 ```
 # to run:
@@ -29,7 +31,7 @@ The main bash script to run is `mask-alignment.sh`
 
 #### Config file
 
-Edit the `settings.config` file before running `mask-alignment.sh`
+Download and edit [settings.config](https://github.com/JeffWeinell/mask-alignment/blob/main/settings.config) before running `mask-alignment.sh`
 
 The unedited `settings.config` file looks like this:
 
@@ -44,6 +46,7 @@ MASK_ALIGNMENT_RSCRIPT=             # path to your copy of 'mask-alignment.R'
 R_PACKAGES_DIR=                     # path to directory where your R packages are installed (R default location used if left blank)
 
 ```
+
 
 
 
