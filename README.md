@@ -26,7 +26,7 @@ The main bash script to run is [mask-alignment.sh](https://github.com/JeffWeinel
 
 ```
 # to run:
-/path/to/mask-alignment.sh /path/to/settings.config
+bash /path/to/mask-alignment.sh /path/to/settings.config
 ```
 
 #### Config file
