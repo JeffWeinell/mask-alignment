@@ -1,20 +1,20 @@
 #!/bin/sh
 
-module load HAL/hal-2.1
+# requires HAL (testing with hal-2.1)
 
-# path to hal file
-HAL_PATH=/shared_data/osn/herp-refdata/dna_alignments/Coronellini/lamps_genomes58_alignment_final.hal
-# where to write chromosome lengths
-CHROMLENGTHS_PATH=/home/jweinell/mendel-nas1/cactus/fasta/lamps_genomes58_alignment_final.hal.chromlengths
+# path to settings.config
+SETTINGS_PATH=${1}
+
+# load settings (input/output paths) from settings.config 
+source $SETTINGS_PATH
 
 # names of all genomes in the HAL
 GENOME_NAMES=$(halStats --genomes "$HAL_PATH" | sed 's| |\n|g' | sort)
 # genome names excluding ancestral genomes
 GENOME_TIPNAMES=$(echo "$GENOME_NAMES" | grep -v '^Anc[0-9]*')
-# root genome name
-ROOT_GENOME=$(halStats --root $HAL_PATH)
 # number of tip genomes
 NUMTIPGENOMES=$(echo "$GENOME_TIPNAMES" | wc -l)
+# extract chromosome names and lengths for each tip genome and save (using UCSC format sequence names) to $GENOMES_PATH 
 for i in $(seq 1 $NUMTIPGENOMES);
 do
 	echo $i
