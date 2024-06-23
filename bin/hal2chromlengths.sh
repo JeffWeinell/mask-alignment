@@ -8,6 +8,9 @@ SETTINGS_PATH=${1}
 # load settings (input/output paths) from settings.config 
 source $SETTINGS_PATH
 
+# use default path for $CHROMLENGTHS_PATH if not explicitely set in settings.config file
+[[ $(echo $CHROMLENGTHS_PATH | wc -w ) -eq 0 ]] && CHROMLENGTHS_PATH=$HAL_PATH".seqlengths"
+
 # names of all genomes in the HAL
 GENOME_NAMES=$(halStats --genomes "$HAL_PATH" | sed 's| |\n|g' | sort)
 # genome names excluding ancestral genomes
