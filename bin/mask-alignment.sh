@@ -21,6 +21,7 @@ BEDPATH=$(mktemp 2>&1)
 GAPLESS_FA_PATH=$(mktemp 2>&1)
 ALN_FA_MASKED_PATH=$(mktemp 2>&1)
 TAB1_PATH=$(mktemp 2>&1)
+MAFLIKE_OUT_PATH=$(mktemp 2>&1)
 
 # convert input MAF alignment into fasta alignment
 awk '$1=="s"{print ">"$2"("$5")/"$3+1"-"$3+$4+1"\n"$7}' $ALN_MAF_PATH > $ALN_FA_UNMASKED_PATH
@@ -42,8 +43,17 @@ awk '{print $1"\t"$3"\t"$6"\t"$7"\t"$8"\t"$15}' $REGIONS_TABLE_PATH |
 # extract sequences in BED intervals from masked genomes file
 bedtools getfasta -s -nameOnly -fi $GENOMES_PATH -bed $BEDPATH | sed 's|[(][+-][)]$||g' > $GAPLESS_FA_PATH
 
+REPLACE_NONGAPS_RSCRIPT="
+args <- commandArgs(trailingOnly = TRUE)
+if(R_PACKAGES_DIR!=''){
+.libPaths(args[4])
+}
+source(args[5])
+replace_nongaps_with(args[1],args[2],args[3])
+"
+
 # For each sequence in the original alignment, use R vector logic to replace characters at non-gap sites with same-interval sequence extracted from masked genome
-Rscript $MASK_ALIGNMENT_RSCRIPT $ALN_FA_UNMASKED_PATH $GAPLESS_FA_PATH $ALN_FA_MASKED_PATH $R_PACKAGES_DIR
+Rscript <(echo "$REPLACE_NONGAPS_RSCRIPT") $ALN_FA_UNMASKED_PATH $GAPLESS_FA_PATH $ALN_FA_MASKED_PATH $R_PACKAGES_DIR $MASK_ALIGNMENT_RSCRIPT
 
 # convert masked fasta alignment into a sequence table
 seqkit fx2tab $ALN_FA_MASKED_PATH | sed 's|(+)|\t+\t|g' | sed 's|(-)|\t-\t|g' | sed 's|\t/|\t|g' > $TAB1_PATH
@@ -52,17 +62,12 @@ seqkit fx2tab $ALN_FA_MASKED_PATH | sed 's|(+)|\t+\t|g' | sed 's|(-)|\t-\t|g' | 
 
 # R script to get contig names and lengths from genomes.dict file
 CHROMLEN_RSCRIPT="
-args <- commandArgs(trailing=TRUE)
-TAB1_PATH=args[1]
-DICTIONARY_PATH=args[2]
-R_PACKAGES_DIR=args[3]
-if(nchar(R_PACKAGES_DIR) > 0) {
-	.libPaths(R_PACKAGES_DIR)
+args <- commandArgs(trailingOnly=TRUE)
+if(R_PACKAGES_DIR!=''){
+.libPaths(args[3])
 }
-library(dplyr)
-tab1.names <- read.table(TAB1_PATH,header=F,sep='\t') %>% select(V1) %>% unlist %>% unname
-dict       <- read.table(DICTIONARY_PATH,header=F,sep='\t') %>% select(V2,V3) %>% mutate(chrom.name=gsub('^SN:','',V2),chrom.length=gsub('^LN:','',V3))
-dict[match(tab1.names,dict[,'chrom.name']),'chrom.length'] %>% unname %>% as.data.frame
+source(args[4])
+chromlen(args[1],args[2])
 "
 
 # construct and save masked MAF
@@ -73,8 +78,18 @@ STARTi0=$(awk '{print $1-1}' $TAB1_PATH)
 SEQLEN=$(paste <(echo "$STARTi1") <(echo "$ENDi1") | awk '{print $2-$1}')
 SEQSTRAND=$(awk '{print $2}' $TAB1_PATH)
 SEQSTRING=$(awk '{print $4}' $TAB1_PATH)
-CHROMLEN=$(Rscript <(echo "$CHROMLEN_RSCRIPT") $TAB1_PATH $DICTIONARY_PATH $R_PACKAGES_DIR | awk 'NR>1{print $2}')
-paste <(echo "$CHROM") <(echo "$STARTi0") <(echo "$SEQLEN") <(echo "$SEQSTRAND") <(echo "$CHROMLEN") <(echo "$SEQSTRING") | awk '{print "s\t"$0}' > $MAF_OUT_PATH
+CHROMLEN=$(Rscript <(echo "$CHROMLEN_RSCRIPT") $TAB1_PATH $DICTIONARY_PATH $R_PACKAGES_DIR $MASK_ALIGNMENT_RSCRIPT | awk 'NR>1{print $2}')
+paste <(echo "$CHROM") <(echo "$STARTi0") <(echo "$SEQLEN") <(echo "$SEQSTRAND") <(echo "$CHROMLEN") <(echo "$SEQSTRING") | awk '{print "s\t"$0}' > $MAFLIKE_OUT_PATH
+
+exit 0
+
+#### still working on stuff below here ####
+
+# identify reference genome name (first 's' line genome)
+REFERENCE_GENOME=$(head $MAFLIKE_OUT_PATH | grep '^s\t' | awk 'NR==1{print $2}' | sed -E 's|[.].+||g' )
+
+# add empty line and '^a$' line before each alignment block and maf header on line 1
+cat <(echo '#MAF') <(awk 'do stuff' $MAFLIKE_OUT_PATH | 'do stuff' | 'do stuff' | 'do stuff') > $MAF_OUT_PATH
 
 echo "masked alignment written to: "$MAF_OUT
 
@@ -86,6 +101,7 @@ rm $REGIONS_TABLE_PATH
 rm $BEDPATH
 rm $GAPLESS_FA_PATH
 rm $TAB1_PATH
+rm $MAFLIKE_OUT_PATH
 [[ "$RMDICT" -eq 0 ]] && rm $DICTIONARY_PATH
 
 
