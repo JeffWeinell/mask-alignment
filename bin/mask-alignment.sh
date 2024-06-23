@@ -8,7 +8,7 @@ source $SETTINGS_PATH
 [[ -f "$MAF_OUT_PATH" ]] && echo "exiting because "$MAF_OUT_PATH" already exists" && exit 0
 
 # create temporary samtools sequence dictionary file for genomes if one doesnt already exist
-DICTIONARY_PATH=$GENOMES_PATH".dict"
+[[ $(echo $DICTIONARY_PATH | wc -w) -eq 0 ]] && DICTIONARY_PATH=$GENOMES_PATH".dict"
 [[ -f "$DICTIONARY_PATH" ]] && RMDICT=1
 [[ ! -f "$DICTIONARY_PATH" ]] && RMDICT=0 && DICTIONARY_PATH=$(mktemp 2>&1) && samtools dict --no-header --output $DICTIONARY_PATH $GENOMES_PATH
 
@@ -45,7 +45,7 @@ bedtools getfasta -s -nameOnly -fi $GENOMES_PATH -bed $BEDPATH | sed 's|[(][+-][
 
 REPLACE_NONGAPS_RSCRIPT="
 args <- commandArgs(trailingOnly = TRUE)
-if(R_PACKAGES_DIR!=''){
+if(args[4]!=''){
 .libPaths(args[4])
 }
 source(args[5])
@@ -55,43 +55,41 @@ replace_nongaps_with(args[1],args[2],args[3])
 # For each sequence in the original alignment, use R vector logic to replace characters at non-gap sites with same-interval sequence extracted from masked genome
 Rscript <(echo "$REPLACE_NONGAPS_RSCRIPT") $ALN_FA_UNMASKED_PATH $GAPLESS_FA_PATH $ALN_FA_MASKED_PATH $R_PACKAGES_DIR $MASK_ALIGNMENT_RSCRIPT
 
-# convert masked fasta alignment into a sequence table
+# convert masked fasta alignment into a seqkit sequence table
 seqkit fx2tab $ALN_FA_MASKED_PATH | sed 's|(+)|\t+\t|g' | sed 's|(-)|\t-\t|g' | sed 's|\t/|\t|g' > $TAB1_PATH
 
-### convert sequence table to MAF
+# identify reference genome name if not specified in settings.config (reference genome is expected to be first in each alignment block)
+[[ $(echo $REFERENCE_GENOME | wc -w) -eq 0 ]] && REFERENCE_GENOME=$(awk 'NR==1{print $1}' $TAB1_PATH | sed -E 's|[.].+||g')
 
+### convert sequence table to MAF
 # R script to get contig names and lengths from genomes.dict file
 CHROMLEN_RSCRIPT="
 args <- commandArgs(trailingOnly=TRUE)
-if(R_PACKAGES_DIR!=''){
+if(args[3]!=''){
 .libPaths(args[3])
 }
 source(args[4])
 chromlen(args[1],args[2])
 "
 
-# construct and save masked MAF
+# construct MAF-like table
 CHROM=$(awk '{print $1}' $TAB1_PATH)
 STARTi1=$(awk '{print $3}' $TAB1_PATH | sed -E 's|-.+||g')
 ENDi1=$(awk '{print $3}' $TAB1_PATH | sed -E 's|^.+-||g')
-STARTi0=$(awk '{print $1-1}' $TAB1_PATH)
+STARTi0=$( echo "$STARTi1" | awk '{print $1-1}')
 SEQLEN=$(paste <(echo "$STARTi1") <(echo "$ENDi1") | awk '{print $2-$1}')
 SEQSTRAND=$(awk '{print $2}' $TAB1_PATH)
 SEQSTRING=$(awk '{print $4}' $TAB1_PATH)
 CHROMLEN=$(Rscript <(echo "$CHROMLEN_RSCRIPT") $TAB1_PATH $DICTIONARY_PATH $R_PACKAGES_DIR $MASK_ALIGNMENT_RSCRIPT | awk 'NR>1{print $2}')
 paste <(echo "$CHROM") <(echo "$STARTi0") <(echo "$SEQLEN") <(echo "$SEQSTRAND") <(echo "$CHROMLEN") <(echo "$SEQSTRING") | awk '{print "s\t"$0}' > $MAFLIKE_OUT_PATH
 
-exit 0
-
-#### still working on stuff below here ####
-
-# identify reference genome name (first 's' line genome)
-REFERENCE_GENOME=$(head $MAFLIKE_OUT_PATH | grep '^s\t' | awk 'NR==1{print $2}' | sed -E 's|[.].+||g' )
-
 # add empty line and '^a$' line before each alignment block and maf header on line 1
-cat <(echo '#MAF') <(awk 'do stuff' $MAFLIKE_OUT_PATH | 'do stuff' | 'do stuff' | 'do stuff') > $MAF_OUT_PATH
+sed -i "/$REFERENCE_GENOME/i d\na" $MAFLIKE_OUT_PATH
+sed -i 's|^d$||g' $MAFLIKE_OUT_PATH
 
-echo "masked alignment written to: "$MAF_OUT
+cat <(echo '##maf version=1') $MAFLIKE_OUT_PATH <(echo "") > $MAF_OUT_PATH
+
+echo "alignment written to: "$MAF_OUT_PATH
 
 ### remove temporary files
 rm $ALN_FA_UNMASKED_PATH
@@ -103,7 +101,4 @@ rm $GAPLESS_FA_PATH
 rm $TAB1_PATH
 rm $MAFLIKE_OUT_PATH
 [[ "$RMDICT" -eq 0 ]] && rm $DICTIONARY_PATH
-
-
-
 
