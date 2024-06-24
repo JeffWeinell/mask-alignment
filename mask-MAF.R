@@ -29,10 +29,18 @@ replace_nongaps_with <- function(ALN_FA_UNMASKED_PATH,GAPLESS_FA_PATH,ALN_FA_MAS
 	writeXStringSet(x=ALNi_OUT,filepath=ALN_FA_MASKED_PATH)
 }
 
-chromlen <- function(TAB1_PATH,DICTIONARY_PATH){
+### new version
+chromlen <- function(TAB1_PATH,CHROMLENGTHS_PATH){
 	tab1.names <- read.table(TAB1_PATH,header=F,sep='\t') %>% select(V1) %>% unlist %>% unname
-	dict       <- read.table(DICTIONARY_PATH,header=F,sep='\t') %>% select(V2,V3) %>% mutate(chrom.name=gsub('^SN:','',V2),chrom.length=gsub('^LN:','',V3))
-	dict[match(tab1.names,dict[,'chrom.name']),'chrom.length'] %>% unname %>% as.data.frame
+	chrom.lengths <- read.table(CHROMLENGTHS_PATH,header=F,sep='\t') %>% mutate(chrom.name=V1,chrom.length=V2)
+	chrom.lengths[match(tab1.names,chrom.lengths[,'chrom.name']),'chrom.length'] %>% unname %>% as.data.frame
 }
+
+### old version
+# chromlen <- function(TAB1_PATH,DICTIONARY_PATH){
+#	tab1.names <- read.table(TAB1_PATH,header=F,sep='\t') %>% select(V1) %>% unlist %>% unname
+#	dict       <- read.table(DICTIONARY_PATH,header=F,sep='\t') %>% select(V2,V3) %>% mutate(chrom.name=gsub('^SN:','',V2),chrom.length=gsub('^LN:','',V3))
+#	dict[match(tab1.names,dict[,'chrom.name']),'chrom.length'] %>% unname %>% as.data.frame
+# }
 
 
