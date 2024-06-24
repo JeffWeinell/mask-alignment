@@ -7,10 +7,10 @@ source $SETTINGS_PATH
 # exit if output file already exists
 [[ -f "$MAF_OUT_PATH" ]] && echo "exiting because "$MAF_OUT_PATH" already exists" && exit 0
 
-# create temporary samtools sequence dictionary file for genomes if one doesnt already exist
-[[ $(echo $DICTIONARY_PATH | wc -w) -eq 0 ]] && DICTIONARY_PATH=$GENOMES_PATH".dict"
-[[ -f "$DICTIONARY_PATH" ]] && RMDICT=1
-[[ ! -f "$DICTIONARY_PATH" ]] && RMDICT=0 && DICTIONARY_PATH=$(mktemp 2>&1) && samtools dict --no-header --output $DICTIONARY_PATH $GENOMES_PATH
+# # create temporary samtools sequence dictionary file for genomes if one doesnt already exist
+# [[ $(echo $DICTIONARY_PATH | wc -w) -eq 0 ]] && DICTIONARY_PATH=$GENOMES_PATH".dict"
+# [[ -f "$DICTIONARY_PATH" ]] && RMDICT=1
+# [[ ! -f "$DICTIONARY_PATH" ]] && RMDICT=0 && DICTIONARY_PATH=$(mktemp 2>&1) && samtools dict --no-header --output $DICTIONARY_PATH $GENOMES_PATH
 
 # create temporary files
 ALN_FA_UNMASKED_PATH=$(mktemp 2>&1)
@@ -62,7 +62,7 @@ seqkit fx2tab $ALN_FA_MASKED_PATH | sed 's|(+)|\t+\t|g' | sed 's|(-)|\t-\t|g' | 
 [[ $(echo $REFERENCE_GENOME | wc -w) -eq 0 ]] && REFERENCE_GENOME=$(awk 'NR==1{print $1}' $TAB1_PATH | sed -E 's|[.].+||g')
 
 ### convert sequence table to MAF
-# R script to get contig names and lengths from genomes.dict file
+# R script to get chromosome lengths for each sequence in MAF
 CHROMLEN_RSCRIPT="
 args <- commandArgs(trailingOnly=TRUE)
 if(args[3]!=''){
@@ -80,7 +80,7 @@ STARTi0=$( echo "$STARTi1" | awk '{print $1-1}')
 SEQLEN=$(paste <(echo "$STARTi1") <(echo "$ENDi1") | awk '{print $2-$1}')
 SEQSTRAND=$(awk '{print $2}' $TAB1_PATH)
 SEQSTRING=$(awk '{print $4}' $TAB1_PATH)
-CHROMLEN=$(Rscript <(echo "$CHROMLEN_RSCRIPT") $TAB1_PATH $DICTIONARY_PATH $R_PACKAGES_DIR $MASK_ALIGNMENT_RSCRIPT | awk 'NR>1{print $2}')
+CHROMLEN=$(Rscript <(echo "$CHROMLEN_RSCRIPT") $TAB1_PATH $CHROMLENGTHS_PATH $R_PACKAGES_DIR $MASK_ALIGNMENT_RSCRIPT | awk 'NR>1{print $2}')
 paste <(echo "$CHROM") <(echo "$STARTi0") <(echo "$SEQLEN") <(echo "$SEQSTRAND") <(echo "$CHROMLEN") <(echo "$SEQSTRING") | awk '{print "s\t"$0}' > $MAFLIKE_OUT_PATH
 
 # add empty line and '^a$' line before each alignment block and maf header on line 1
@@ -100,5 +100,5 @@ rm $BEDPATH
 rm $GAPLESS_FA_PATH
 rm $TAB1_PATH
 rm $MAFLIKE_OUT_PATH
-[[ "$RMDICT" -eq 0 ]] && rm $DICTIONARY_PATH
+# [[ "$RMDICT" -eq 0 ]] && rm $DICTIONARY_PATH
 
