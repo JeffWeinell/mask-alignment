@@ -12,21 +12,27 @@ Steps include:
 - Zero-length sequences, if present in the input MAF, will always be filtered
 
 **External dependencies**
-You must install these programs ahead of time:
-- HAL (for step 1)
-- bedtools (tested using version 2.29.2)
-- samtools (tested using version 1.11)
-- seqkit 
+
+- [HAL](https://github.com/ComparativeGenomicsToolkit/hal/tree/master)
+- [bedtools](https://bedtools.readthedocs.io/en/latest/) (tested using version 2.29.2)
+- [seqkit](https://bioinf.shenwei.me/seqkit/)
 - R v4+
 - R packages `dplyr`, `stringr`, `Biostrings`, and `GenomicRanges`
-- [settings.config](https://github.com/JeffWeinell/mask-alignment/blob/main/settings.config) download and edit to specify settings for `mask-MAF.sh`
-- R script [mask-MAF.R](https://github.com/JeffWeinell/mask-alignment/blob/main/mask-MAF.R)
 
-#### Prepare input files and run code
+## Download these necessary files
 
-**Step 1: update settings.config and bedpaths.config files**
+- [bedpaths.config](https://github.com/JeffWeinell/mask-alignment/blob/main/bedpaths.config)
+- [settings.config](https://github.com/JeffWeinell/mask-alignment/blob/main/settings.config)
+- [mask-genomes.sh](https://github.com/JeffWeinell/mask-alignment/blob/main/mask-genomes.sh)
+- [mask-MAF.sh](https://github.com/JeffWeinell/mask-alignment/blob/main/mask-MAF.sh)
+- [mask-MAF.R](https://github.com/JeffWeinell/mask-alignment/blob/main/mask-MAF.R)
 
-Download and edit the two configuration files: [settings.config](https://github.com/JeffWeinell/mask-alignment/blob/main/settings.config) and [bedpaths.config](https://github.com/JeffWeinell/mask-alignment/blob/main/bedpaths.config).
+
+## Prepare input files and run code
+
+**Step 1: Prepare input files**
+
+Edit the two configuration files: [settings.config](https://github.com/JeffWeinell/mask-alignment/blob/main/settings.config) and [bedpaths.config](https://github.com/JeffWeinell/mask-alignment/blob/main/bedpaths.config).
 
 The unedited `settings.config` file looks like this:
 ```
