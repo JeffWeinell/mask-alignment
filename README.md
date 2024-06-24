@@ -15,11 +15,11 @@ Method to hard mask (with Ns) genome sequence intervals in a MAF file that was p
 
 **External dependencies**
 
-- [HAL](https://github.com/ComparativeGenomicsToolkit/hal/tree/master) (tested using version 2.1)
-- [bedtools](https://bedtools.readthedocs.io/en/latest/) (tested using version 2.29.2)
-- [seqkit](https://bioinf.shenwei.me/seqkit/) 
-- R v4+ (tested using version 4.0.2)
-- R packages `dplyr` (tested v1.0.7), `stringr` (tested v1.4.0), `Biostrings` (tested v2.58.0), and `GenomicRanges` (tested v1.42.0)
+- [HAL](https://github.com/ComparativeGenomicsToolkit/hal/tree/master) (v2.1 tested)
+- [bedtools](https://bedtools.readthedocs.io/en/latest/) (v2.29.2 tested)
+- [seqkit](https://bioinf.shenwei.me/seqkit/) (v2.7.0 tested)
+- R v4+ (v4.0.2 tested)
+- R packages `dplyr` (v1.0.7 tested), `stringr` (v1.4.0 tested), `Biostrings` (v2.58.0 tested), and `GenomicRanges` (v1.42.0 tested)
 
 ## Download these necessary files
 
