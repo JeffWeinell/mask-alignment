@@ -24,7 +24,7 @@ do
 	echo $i $GENOMEi
 
  	# test if any intervals to mask in $GENOMEi (0=false, 1=true)
-   	TEST_BEDPATHi=$(grep "$GENOMEi" $BED_CONFIG_PATH | wc -w)
+   	TEST_BEDPATHi=$(awk -v gen=$GENOMEi '$1==gen{print $1}' $BED_CONFIG_PATH | wc -w)
 	[[ "$TEST_BEDPATHi" -gt 1 ]] && echo "genome names in must be unique in "$BED_CONFIG_PATH && exit 1
      
  	# (1) add $GENOMEi BED intervals (if any) to $BED_PATH
