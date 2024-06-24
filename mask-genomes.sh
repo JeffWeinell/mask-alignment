@@ -41,11 +41,13 @@ do
  	[[ "$TEST_BEDPATHi" -eq 0 ]] && [[ $i -eq 1 ]] && hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi > $GENOMES_PATH
   	[[ "$TEST_BEDPATHi" -eq 0 ]] && [[ $i -gt 1 ]] && hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi >> $GENOMES_PATH
    	
-    	GENOMEi_TEMP_PATH=$(mktemp 2>&1)
-     	hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi > $GENOMEi_TEMP_PATH
-  	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ $i -eq 1 ]] && bedtools maskfasta -fi <(hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi) -bed $BED_PATH > $GENOMES_PATH
-	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ $i -gt 1 ]] && bedtools maskfasta -fi <(hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi) -bed $BED_PATH >> $GENOMES_PATH
-	rm $GENOMEi_TEMP_PATH
+    	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ $i -eq 1 ]] && GENOMEi_TEMP_PATH=$(mktemp 2>&1) && 
+     	        hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi > $GENOMEi_TEMP_PATH && 
+	        bedtools maskfasta -fi $GENOMEi_TEMP_PATH -bed $BED_PATH > $GENOMES_PATH && rm $GENOMEi_TEMP_PATH
+
+ 	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ $i -gt 1 ]] && GENOMEi_TEMP_PATH=$(mktemp 2>&1) && 
+     	        hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi > $GENOMEi_TEMP_PATH &&
+	        bedtools maskfasta -fi $GENOMEi_TEMP_PATH -bed $BED_PATH >> $GENOMES_PATH && rm $GENOMEi_TEMP_PATH
 done
 
 
