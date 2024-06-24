@@ -22,19 +22,27 @@ for i in $(seq 1 $NUMTIPGENOMES);
 do
 	GENOMEi=$(echo "$GENOME_TIPNAMES" | sed "${i}q;d")
 	echo $i $GENOMEi
-  	
+
+ 	# test if any intervals to mask in $GENOMEi (0=false, 1=true)
+   	TEST_BEDPATHi=$(grep "$GENOMEi" $BED_CONFIG_PATH | wc -w)
+	[[ "$TEST_BEDPATHi" -gt 1 ]] && echo "genome names in must be unique in "$BED_CONFIG_PATH && exit 1
+     
  	# (1) add $GENOMEi BED intervals (if any) to $BED_PATH
- 	BEDPATHi=$(awk -v gen=$GENOMEi '$1==gen{print $2}' $BED_CONFIG_PATH)
-	[[ -f "$BEDPATHi" ]] && [[ -f "$BED_CONFIG_PATH" ]] && awk -v gen=$GENOMEi '{print gen"."$0}' $BEDPATHi > $BED_PATH
- 	[[ -f "$BEDPATHi" ]] && [[ ! -f "$BED_CONFIG_PATH" ]] && awk -v gen=$GENOMEi '{print gen"."$0}' $BEDPATHi > $BED_PATH
+   	[[ "$TEST_BEDPATHi" -eq 0 ]] && BEDPATHi=""
+    	[[ "$TEST_BEDPATHi" -eq 1 ]] && BEDPATHi=$(awk -v gen=$GENOMEi '$1==gen{print $2}' $BED_CONFIG_PATH)
+	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ -f "$BEDPATHi" ]] && [[ -f "$BED_CONFIG_PATH" ]] && awk -v gen=$GENOMEi '{print gen"."$0}' $BEDPATHi > $BED_PATH
+ 	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ -f "$BEDPATHi" ]] && [[ ! -f "$BED_CONFIG_PATH" ]] && awk -v gen=$GENOMEi '{print gen"."$0}' $BEDPATHi > $BED_PATH
 
  	# (2) add $GENOMEi sequence names (genomeName.chromosomeName) and lengths to $CHROMLENGTHS_PATH
    	[[ $i -eq 1 ]] && halStats --chromSizes $GENOMEi $HAL_PATH | awk -v gen=$GENOMEi '{print gen"."$0}' > $CHROMLENGTHS_PATH
     	[[ $i -gt 1 ]] && halStats --chromSizes $GENOMEi $HAL_PATH | awk -v gen=$GENOMEi '{print gen"."$0}' >> $CHROMLENGTHS_PATH
 
      	# (3) mask $GENOMEi sequences and add to $GENOMES_PATH
- 	[[ $i -eq 1 ]] && bedtools maskfasta -fi <(hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi) -bed $BED_PATH > $GENOMES_PATH
-	[[ $i -gt 1 ]] && bedtools maskfasta -fi <(hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi) -bed $BED_PATH >> $GENOMES_PATH
+ 	[[ "$TEST_BEDPATHi" -eq 0 ]] && [[ $i -eq 1 ]] && hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi > $GENOMES_PATH
+  	[[ "$TEST_BEDPATHi" -eq 0 ]] && [[ $i -gt 1 ]] && hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi >> $GENOMES_PATH
+  	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ $i -eq 1 ]] && bedtools maskfasta -fi <(hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi) -bed $BED_PATH > $GENOMES_PATH
+	[[ "$TEST_BEDPATHi" -eq 1 ]] && [[ $i -gt 1 ]] && bedtools maskfasta -fi <(hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi) -bed $BED_PATH >> $GENOMES_PATH
+	
 done
 
 
