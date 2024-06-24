@@ -15,11 +15,11 @@ Steps include:
 
 **External dependencies**
 
-- [HAL](https://github.com/ComparativeGenomicsToolkit/hal/tree/master)
+- [HAL](https://github.com/ComparativeGenomicsToolkit/hal/tree/master) (tested using version 2.1)
 - [bedtools](https://bedtools.readthedocs.io/en/latest/) (tested using version 2.29.2)
-- [seqkit](https://bioinf.shenwei.me/seqkit/)
-- R v4+
-- R packages `dplyr`, `stringr`, `Biostrings`, and `GenomicRanges`
+- [seqkit](https://bioinf.shenwei.me/seqkit/) 
+- R v4+ (tested using version 4.0.2)
+- R packages `dplyr` (tested v1.0.7), `stringr` (tested v1.4.0), `Biostrings` (tested v2.58.0), and `GenomicRanges` (tested v1.42.0)
 
 ## Download these necessary files
 
