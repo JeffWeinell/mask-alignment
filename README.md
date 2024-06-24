@@ -1,4 +1,4 @@
-# mask-alignment
+# Mask whole genome alignment in Multiple Alignment Format (MAF)
 
 Method to hard mask genome-specific sites in a MAF-format whole genome alignment that was generated using the [cactus](https://github.com/ComparativeGenomicsToolkit/cactus/blob/master/README.md) function `cactus-hal2maf`.
 
