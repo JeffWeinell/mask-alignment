@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# requires HAL (tested with hal-2.1)
+# requires HAL (v2.1 tested) and bedtools (v2.29.2 tested)
 
 # path to settings.config
 SETTINGS_PATH=${1}
