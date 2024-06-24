@@ -14,12 +14,27 @@ GENOME_NAMES=$(halStats --genomes "$HAL_PATH" | sed 's| |\n|g' | sort)
 GENOME_TIPNAMES=$(echo "$GENOME_NAMES" | grep -v '^Anc[0-9]*')
 # number of tip genomes
 NUMTIPGENOMES=$(echo "$GENOME_TIPNAMES" | wc -l)
-# extract each tip genome as fasta with UCSC format sequence names and save to $GENOMES_PATH
+
+# (1) extract each genome and save to $GENOMES_PATH as fasta with UCSC format sequence names
+# (2) get bed intervals to mask for each genome and add to $BED_PATH
+# (3) get sequence lengths for each genome and append to $CHROMLENGTHS_PATH
 for i in $(seq 1 $NUMTIPGENOMES);
 do
 	GENOMEi=$(echo "$GENOME_TIPNAMES" | sed "${i}q;d")
 	echo $i $GENOMEi
-	[[ $i -eq 1 ]] && hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi > $GENOMES_PATH
+ 	
+  	# (1) add $GENOMEi sequences to $GENOMES_PATH
+ 	[[ $i -eq 1 ]] && hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi > $GENOMES_PATH
 	[[ $i -gt 1 ]] && hal2fasta --ucscSequenceNames $HAL_PATH $GENOMEi >> $GENOMES_PATH
-	sleep 1
+
+ 	# (2) add $GENOMEi BED intervals (if any) to $BED_PATH
+ 	BEDPATHi=$(awk -v gen=$GENOMEi '$1==gen{print $2}' $BED_CONFIG_PATH)
+	[[ -f "$BEDPATHi" ]] && [[ -f "$BED_CONFIG_PATH" ]] && awk -v gen=$GENOMEi '{print gen"."$0}' $BEDPATHi > $BED_PATH
+ 	[[ -f "$BEDPATHi" ]] && [[ ! -f "$BED_CONFIG_PATH" ]] && awk -v gen=$GENOMEi '{print gen"."$0}' $BEDPATHi > $BED_PATH
+
+ 	# (3) add $GENOMEi sequence lengths to $CHROMLENGTHS_PATH
+   	[[ $i -eq 1 ]] && halStats --chromSizes $GENOMEi $HAL_PATH | awk -v gen=$GENOMEi '{print gen"."$0}' > $CHROMLENGTHS_PATH
+    	[[ $i -gt 1 ]] && halStats --chromSizes $GENOMEi $HAL_PATH | awk -v gen=$GENOMEi '{print gen"."$0}' >> $CHROMLENGTHS_PATH
 done
+
+
