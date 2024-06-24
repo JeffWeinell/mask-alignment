@@ -1,5 +1,7 @@
 # Mask whole genome alignment in Multiple Alignment Format (MAF)
 
+## About
+
 Method to hard mask (with Ns) genome sequence intervals in a MAF file that was previously generated using the [cactus](https://github.com/ComparativeGenomicsToolkit/cactus/blob/master/README.md) command `cactus-hal2maf`.
 
 Steps include:
