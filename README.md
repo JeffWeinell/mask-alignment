@@ -5,9 +5,9 @@
 Method to hard mask (with Ns) genome sequence intervals in a MAF file that was previously generated using the [cactus](https://github.com/ComparativeGenomicsToolkit/cactus/blob/master/README.md) command `cactus-hal2maf`.
 
 **Steps:**
-- (1) Edit the configuration files [bedpaths.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/bedpaths.config) and [settings.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/settings.config) to define input/output file paths.
-- (2) Run [mask-genomes.sh](https://github.com/JeffWeinell/mask-alignment/blob/main/mask-genomes.sh) to combine BEDs defined in bedpaths.config into a single BED with USCS-format 'genome.chromosome' sequence names; extract and mask genomes from the MAF-precursor HAL and save all masked genomes (without alignment information) in a single fasta file that is used in the next (alignment masking) step.
-- (3) Run [mask-MAF.sh](https://github.com/JeffWeinell/mask-alignment/blob/main/mask-MAF.sh) to generate a MAF alignment with sites masked at intervals in BED files defined in bedpaths.config.
+- (1) Edit the configuration files [bedpaths.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/current/bedpaths.config) and [settings.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/current/settings.config) to define input/output file paths.
+- (2) Run [mask-genomes.sh](https://github.com/JeffWeinell/mask-alignment/blob/main/current/mask-genomes.sh) to combine BEDs defined in bedpaths.config into a single BED with USCS-format 'genome.chromosome' sequence names; extract and mask genomes from the MAF-precursor HAL and save all masked genomes (without alignment information) in a single fasta file that is used in the next (alignment masking) step.
+- (3) Run [mask-MAF.sh](https://github.com/JeffWeinell/mask-alignment/blob/main/current/mask-MAF.sh) to generate a MAF alignment with sites masked at intervals in BED files defined in bedpaths.config.
 
 **Considerations**
 - I have only tested this code on MAFs produced using the [cactus](https://github.com/ComparativeGenomicsToolkit/cactus/blob/master/README.md) function `cactus-hal2maf`.
@@ -23,11 +23,11 @@ Method to hard mask (with Ns) genome sequence intervals in a MAF file that was p
 
 ## Download these necessary files
 
-- [bedpaths.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/bedpaths.config)
-- [settings.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/settings.config)
-- [mask-genomes.sh](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/mask-genomes.sh)
-- [mask-MAF.sh](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/mask-MAF.sh)
-- [mask-MAF.R](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/mask-MAF.R)
+- [bedpaths.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/current/bedpaths.config)
+- [settings.config](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/current/settings.config)
+- [mask-genomes.sh](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/current/mask-genomes.sh)
+- [mask-MAF.sh](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/current/mask-MAF.sh)
+- [mask-MAF.R](https://raw.githubusercontent.com/JeffWeinell/mask-alignment/main/current/mask-MAF.R)
 
 
 ## Prepare input files and run code
