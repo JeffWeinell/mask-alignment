@@ -4,9 +4,6 @@
 #SBATCH --tasks-per-node=1
 #SBATCH --mem=20gb
 #SBATCH --time=12:00:00
-#SBATCH --mail-type=NONE
-#SBATCH --mail-user=jweine2@gmail.com
-#SBATCH --chdir=/home/jweinell/mendel-nas1/logs/
 #SBATCH --output=slurm-%j-%x.out
 #SBATCH --error=slurm-%j-%x.out
 
